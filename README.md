@@ -1,8 +1,7 @@
 # Formation
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/formation`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Form objects for rails build on top Active model and [active_model_attributes](https://github.com/Azdaroth/active_model_attributes)
+Heavily inspired by the `rails-patterns` gem. The main difference is that Formation uses `active_model_attributes` instead of `Virtus`
 
 ## Installation
 
@@ -22,7 +21,42 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+class ProfileForm < Formation::Form
+  param_key "profile"
+
+  attribute :first_name
+  attribute :last_name
+  attribute :address1
+  attribute :address2
+
+  private
+
+  def persist
+    resource.update(attributes.except(:address1, :address2))
+    resource.address.update(attributes.except(:first_name, :last_name))
+  end
+end
+```
+
+###In your controller
+
+```ruby
+# new
+def new
+  @form = ProfileForm.new(User.new)
+end
+
+# create
+def create
+  @form = ProfileForm.new(User.new, params[:profile])
+end
+
+# update
+def update
+  @form = ProfileForm.new(User.find(params[:id]), params[:profile])
+end
+```
 
 ## Development
 
@@ -32,7 +66,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/formation. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/jwald1/formation. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
