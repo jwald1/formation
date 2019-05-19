@@ -14,31 +14,32 @@ module Formation
     include ActiveModelAttributes
 
     def self.param_key(key = nil)
-      if key.nil?
-        @param_key
-      else
-        @param_key = key
-      end
+      return @param_key if key.nil?
+        
+      @param_key = key
+    end
+
+    def self.auto_html5_validation(bool = true)
+      @auto_html5_validation ||= bool
     end
 
     def initialize(*args)
-      attributes = args.extract_options!
+      given_attributes = args.extract_options!
 
-      if attributes.blank? && args.last.is_a?(ActionController::Parameters)
-        attributes = args.pop.to_unsafe_h
+      if given_attributes.blank? && args.last.is_a?(ActionController::Parameters)
+        given_attributes = args.pop.to_unsafe_h.to_h
       end
 
       @resource = args.first
 
-      registered_attribute_keys = self.class.attributes_registry.keys.map(&:to_sym)
-      attributes.to_h.symbolize_keys!
-      attributes.slice!(*registered_attribute_keys)
+      given_attributes.symbolize_keys!
+      given_attributes.slice!(*registered_attribute_keys)
 
-      super(resource_attributes.merge(attributes))
+      super(resource_attributes.merge(given_attributes))
     end
 
     def attributes
-      @_attributes ||= self.class.attributes_registry.keys.map do |attribute|
+      @_attributes ||= registered_attribute_keys.map do |attribute|
         [attribute, public_send(attribute)]
       end.to_h
     end
@@ -82,6 +83,10 @@ module Formation
     end
 
     private
+
+    def registered_attribute_keys
+      self.class.attributes_registry.keys
+    end
 
     def persist
       raise NotImplementedError, "#persist has to be implemented"

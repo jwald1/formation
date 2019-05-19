@@ -23,6 +23,7 @@ Or install it yourself as:
 
 ```ruby
 class ProfileForm < Formation::Form
+  # define param_key if no resource is given or if you want the param_key to be diffrent than the resource
   param_key "profile"
 
   attribute :first_name
