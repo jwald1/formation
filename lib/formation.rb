@@ -1,6 +1,5 @@
 require "formation/version"
+require 'formation/form'
 
 module Formation
-  class Error < StandardError; end
-  # Your code goes here...
 end

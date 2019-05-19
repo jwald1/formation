@@ -41,4 +41,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_dependency "activemodel", ">= 5.2.3"
   spec.add_dependency "active_model_attributes", ">= 1.4.0"
+  spec.add_dependency "actionpack", ">= 5.2"
 end
