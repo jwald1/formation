@@ -62,7 +62,7 @@ end
 ## Rails Generator
 
 Simply run:
-`rails g formation optional_namespace/modelname attribute:type`
+`rails g formation:form optional_namespace/modelname attribute:type`
 
 ## Development
 

@@ -2,7 +2,7 @@
 
 require 'rails/generators/base'
 
-class FormationGenerator < Rails::Generators::NamedBase
+class Formation::FormGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('templates', __dir__)
 
   argument :attributes, type: :array, default: [], banner: 'attribute attribute'
