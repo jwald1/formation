@@ -1,0 +1,14 @@
+<% module_namespacing do -%>
+class <%= class_name.camelcase %>Form < Formation::Form
+  <% attributes_properties.each do |attribute| %>
+    attribute <%= attribute %>
+  <% end %>
+
+  private
+
+  def persist
+    # please define your persist logic
+    # resource.update(attributes)
+  end
+end
+<% end -%>

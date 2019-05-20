@@ -1,0 +1,8 @@
+Description:
+  Generates a form object.
+
+Example:
+  rails g form user
+
+  This will create:
+    app/forms/user_form.rb
