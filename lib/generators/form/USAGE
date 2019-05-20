@@ -6,3 +6,8 @@ Example:
 
   This will create:
     app/forms/user_form.rb
+
+  rails g admin first_name:string last_name:string
+
+  This will create
+    app/forms/admin_form.rb
