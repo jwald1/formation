@@ -2,7 +2,7 @@
 
 require 'rails/generators/base'
 
-class FormGenerator < Rails::Generators::NamedBase
+class FormationGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('templates', __dir__)
 
   argument :attributes, type: :array, default: [], banner: 'attribute attribute'
@@ -14,9 +14,8 @@ class FormGenerator < Rails::Generators::NamedBase
   private
 
   def attributes_properties
-    attributes.map do |attribute|
-      attribute.split(':').take(2)
-               .map { |a| a.to_sym.inspect }.join(', ')
+    attributes.map do |a|
+      "#{a.name.to_sym.inspect}, #{a.type.to_sym.inspect}"
     end
   end
 end

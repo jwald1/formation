@@ -1,9 +1,9 @@
 <% module_namespacing do -%>
 class <%= class_name.camelcase %>Form < Formation::Form
-  <% attributes_properties.each do |attribute| %>
-    attribute <%= attribute %>
-  <% end %>
-
+  <%- attributes_properties.each do |attribute| -%>
+  attribute <%= attribute %>
+  <%- end -%>
+  
   private
 
   def persist
