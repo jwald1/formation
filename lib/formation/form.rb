@@ -1,6 +1,6 @@
 require 'active_model'
 require 'active_model_attributes'
-require "action_controller/metal/strong_parameters"
+require 'action_controller/metal/strong_parameters'
 
 module Formation
   class Form
@@ -15,7 +15,7 @@ module Formation
 
     def self.param_key(key = nil)
       return @param_key if key.nil?
-        
+
       @param_key = key
     end
 
@@ -71,11 +71,7 @@ module Formation
     end
 
     def to_param
-      if resource.present? && resource.respond_to?(:to_param)
-        resource.to_param
-      else
-        nil
-      end
+      resource.to_param if resource.present? && resource.respond_to?(:to_param)
     end
 
     def model_name
@@ -89,13 +85,27 @@ module Formation
     end
 
     def persist
-      raise NotImplementedError, "#persist has to be implemented"
+      raise NotImplementedError, '#persist has to be implemented'
     end
 
     def resource_attributes
       return {} unless resource
-      attributes = resource.attributes.symbolize_keys
+
+      attributes = resource.respond_to?(:attributes) ? resource.attributes.symbolize_keys : {}
+
+      registered_attribute_keys.map do |attribute|
+        value = attributes[attribute].blank? ? resource_attribute_value(attribute) : attributes[attribute]
+
+        [attribute, value]
+      end
+
       attributes.slice(*self.class.attributes_registry.keys)
+    end
+
+    def resource_attribute_value(attribute)
+      return unless resource.respond_to?(attribute)
+
+      resource.public_send(attribute)
     end
 
     def model_name_attributes
