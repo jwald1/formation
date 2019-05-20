@@ -40,7 +40,7 @@ class ProfileForm < Formation::Form
 end
 ```
 
-###In your controller
+### In your controller
 
 ```ruby
 # new
@@ -58,6 +58,11 @@ def update
   @form = ProfileForm.new(User.find(params[:id]), params[:profile])
 end
 ```
+
+## Rails Generator
+
+Simply run:
+`rails g formation optional_namespace/modelname attribute:type`
 
 ## Development
 
