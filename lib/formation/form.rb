@@ -26,7 +26,8 @@ module Formation
     def initialize(*args)
       given_attributes = args.extract_options!
 
-      if given_attributes.blank? && args.last.is_a?(ActionController::Parameters)
+      if given_attributes.blank? &&
+         args.last.is_a?(ActionController::Parameters)
         given_attributes = args.pop.to_unsafe_h.to_h
       end
 
@@ -39,9 +40,10 @@ module Formation
     end
 
     def attributes
-      @_attributes ||= registered_attribute_keys.map do |attribute|
-        [attribute, public_send(attribute)]
-      end.to_h
+      @_attributes ||=
+        registered_attribute_keys.map do |attribute|
+          [attribute, public_send(attribute)]
+        end.to_h
     end
 
     def save
@@ -49,9 +51,7 @@ module Formation
     end
 
     def save!
-      save.tap do |saved|
-        raise Invalid unless saved
-      end
+      save.tap { |saved| raise Invalid unless saved }
     end
 
     def persisted?
@@ -91,13 +91,24 @@ module Formation
     def resource_attributes
       return {} unless resource
 
-      attributes = resource.respond_to?(:attributes) ? resource.attributes.symbolize_keys : {}
+      attributes =
+        if resource.respond_to?(:attributes)
+          resource.attributes.symbolize_keys
+        else
+          {}
+        end
 
-      registered_attribute_keys.map do |attribute|
-        value = attributes[attribute].blank? ? resource_attribute_value(attribute) : attributes[attribute]
+      attributes =
+        registered_attribute_keys.map do |attribute|
+          value =
+            if attributes[attribute].blank?
+              resource_attribute_value(attribute)
+            else
+              attributes[attribute]
+            end
 
-        [attribute, value]
-      end
+          [attribute, value]
+        end.to_h
 
       attributes.slice(*self.class.attributes_registry.keys)
     end
