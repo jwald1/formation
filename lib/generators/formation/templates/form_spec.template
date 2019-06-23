@@ -1,0 +1,6 @@
+<% module_namespacing do -%>
+RSpec.describe <%= class_name.camelcase %>Form do
+  describe "#save" do
+  end
+end
+<% end -%>

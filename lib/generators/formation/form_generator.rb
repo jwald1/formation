@@ -12,6 +12,11 @@ class Formation::FormGenerator < Rails::Generators::NamedBase
              File.join('app', 'forms', class_path, "#{file_name}_form.rb")
   end
 
+  def create_form_spec_file
+    template 'form_spec.template',
+             File.join('spec', 'forms', class_path, "#{file_name}_form_spec.rb")
+  end
+
   private
 
   def attributes_properties
