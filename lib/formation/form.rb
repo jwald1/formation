@@ -91,26 +91,18 @@ module Formation
     def resource_attributes
       return {} unless resource
 
-      attributes =
+      resource_attrs =
         if resource.respond_to?(:attributes)
           resource.attributes.symbolize_keys
         else
           {}
         end
 
-      attributes =
-        registered_attribute_keys.map do |attribute|
-          value =
-            if attributes[attribute].blank?
-              resource_attribute_value(attribute)
-            else
-              attributes[attribute]
-            end
+      registered_attribute_keys.map do |attribute|
+        value = resource_attrs[attribute] || resource_attribute_value(attribute)
 
-          [attribute, value]
-        end.to_h
-
-      attributes.slice(*self.class.attributes_registry.keys)
+        [attribute, value]
+      end.to_h
     end
 
     def resource_attribute_value(attribute)
