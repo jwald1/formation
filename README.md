@@ -31,6 +31,11 @@ class ProfileForm < Formation::Form
   attribute :address1
   attribute :address2
 
+  # you can set default values like so:
+  attribute :phone_number, default: '000-000-0000'
+  # using a proc
+  attribute :last_4, default: Proc.new { |f| f.phone_number[-4..-1] }
+
   private
 
   def persist

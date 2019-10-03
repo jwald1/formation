@@ -88,8 +88,16 @@ module Formation
       raise NotImplementedError, '#persist has to be implemented'
     end
 
+    def default_attributes
+      @default_attributes ||= self.class.attributes_registry.map do |k, v|
+        default_value = v.last[:default]
+        default_value = default_value.respond_to?(:call) ? default_value.call(self) : default_value
+        [k, default_value]
+      end.to_h
+    end
+
     def resource_attributes
-      return {} unless resource
+      return default_attributes unless resource
 
       resource_attrs =
         if resource.respond_to?(:attributes)
@@ -99,7 +107,7 @@ module Formation
         end
 
       registered_attribute_keys.map do |attribute|
-        value = resource_attrs[attribute] || resource_attribute_value(attribute)
+        value = resource_attrs[attribute] || resource_attribute_value(attribute) || default_attributes[attribute]
 
         [attribute, value]
       end.to_h
