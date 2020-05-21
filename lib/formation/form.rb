@@ -4,11 +4,10 @@ require 'action_controller/metal/strong_parameters'
 
 module Formation
   class Form
-    attr_reader :resource
+    attr_reader :model
 
     Error = Class.new(StandardError)
     Invalid = Class.new(Error)
-    NoParamKey = Class.new(Error)
 
     include ActiveModel::Model
     include ActiveModelAttributes
@@ -23,20 +22,20 @@ module Formation
       @auto_html5_validation ||= bool
     end
 
-    def initialize(*args)
-      given_attributes = args.extract_options!
+    def initialize(model: nil, params: nil)
 
-      if given_attributes.blank? &&
-         args.last.is_a?(ActionController::Parameters)
-        given_attributes = args.pop.to_unsafe_h.to_h
+      if params.present? && params.is_a?(ActionController::Parameters)
+        params = params.to_unsafe_h.to_h
+      else
+        params ||= {}
       end
 
-      @resource = args.first
+      @model = model
 
-      given_attributes.symbolize_keys!
-      given_attributes.slice!(*registered_attribute_keys)
+      params.symbolize_keys!
+      params.slice!(*registered_attribute_keys)
 
-      super(resource_attributes.merge(given_attributes))
+      super(model_attributes.merge(params))
     end
 
     def attributes
@@ -55,8 +54,8 @@ module Formation
     end
 
     def persisted?
-      if resource.present? && resource.respond_to?(:persisted?)
-        resource.persisted?
+      if model.present? && model.respond_to?(:persisted?)
+        model.persisted?
       else
         false
       end
@@ -71,7 +70,7 @@ module Formation
     end
 
     def to_param
-      resource.to_param if resource.present? && resource.respond_to?(:to_param)
+      model.to_param if model.present? && model.respond_to?(:to_param)
     end
 
     def model_name
@@ -96,27 +95,27 @@ module Formation
       end.to_h
     end
 
-    def resource_attributes
-      return default_attributes unless resource
+    def model_attributes
+      return default_attributes unless model
 
-      resource_attrs =
-        if resource.respond_to?(:attributes)
-          resource.attributes.symbolize_keys
+      model_attrs =
+        if model.respond_to?(:attributes)
+          model.attributes.symbolize_keys
         else
           {}
         end
 
       registered_attribute_keys.map do |attribute|
-        value = resource_attrs[attribute] || resource_attribute_value(attribute) || default_attributes[attribute]
+        value = model_attrs[attribute] || model_attribute_value(attribute) || default_attributes[attribute]
 
         [attribute, value]
       end.to_h
     end
 
-    def resource_attribute_value(attribute)
-      return unless resource.respond_to?(attribute)
+    def model_attribute_value(attribute)
+      return unless model.respond_to?(attribute)
 
-      resource.public_send(attribute)
+      model.public_send(attribute)
     end
 
     def model_name_attributes
@@ -126,14 +125,13 @@ module Formation
           route_key: self.class.param_key.pluralize,
           singular_route_key: self.class.param_key
         }
-      elsif resource.present? && resource.respond_to?(:model_name)
-        {
-          param_key: resource.model_name.param_key,
-          route_key: resource.model_name.route_key,
-          singular_route_key: resource.model_name.singular_route_key
-        }
       else
-        raise NoParamKey
+        class_name = self.class.name.sub('Form', '').underscore
+        {
+          param_key: class_name,
+          route_key: class_name.pluralize,
+          singular_route_key: class_name
+        }
       end
     end
   end

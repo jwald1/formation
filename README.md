@@ -1,7 +1,7 @@
 # Formation
 
 Form objects for rails build on top Active model and [active_model_attributes](https://github.com/Azdaroth/active_model_attributes)
-Heavily inspired by the `rails-patterns` gem. The main difference is that Formation uses `active_model_attributes` instead of `Virtus`
+Heavily inspired by the `rails-patterns` gem.
 
 ## Installation
 
@@ -23,8 +23,8 @@ Or install it yourself as:
 
 ```ruby
 class ProfileForm < Formation::Form
-  # define param_key if no resource is given or if you want the param_key to be diffrent than the resource
-  param_key "profile"
+  # define param_key. Default is the form name in our example it would be 'profile'
+  param_key "some_profile"
 
   attribute :first_name
   attribute :last_name
@@ -39,8 +39,8 @@ class ProfileForm < Formation::Form
   private
 
   def persist
-    resource.update(attributes.except(:address1, :address2))
-    resource.address.update(attributes.except(:first_name, :last_name))
+    model.update(attributes.except(:address1, :address2))
+    model.address.update(attributes.except(:first_name, :last_name))
   end
 end
 ```
@@ -50,17 +50,17 @@ end
 ```ruby
 # new
 def new
-  @form = ProfileForm.new(User.new)
+  @form = ProfileForm.new(model: User.new)
 end
 
 # create
 def create
-  @form = ProfileForm.new(User.new, params[:profile])
+  @form = ProfileForm.new(model: User.new, params: params[:profile])
 end
 
 # update
 def update
-  @form = ProfileForm.new(User.find(params[:id]), params[:profile])
+  @form = ProfileForm.new(model: User.find(params[:id]), params: params[:profile])
 end
 ```
 
