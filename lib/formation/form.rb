@@ -34,7 +34,7 @@ module Formation
 
       params.symbolize_keys!
       params.slice!(*registered_attribute_keys)
-
+      params.select! { |_, value| value.present? }
       super(model_attributes.merge(params))
     end
 
@@ -106,7 +106,13 @@ module Formation
         end
 
       registered_attribute_keys.map do |attribute|
-        value = model_attrs[attribute] || model_attribute_value(attribute) || default_attributes[attribute]
+        value = if model_attrs[attribute].present?
+          model_attrs[attribute]
+        elsif model_attribute_value(attribute).present?
+          model_attribute_value(attribute)
+        else
+          default_attributes[attribute]
+        end
 
         [attribute, value]
       end.to_h
