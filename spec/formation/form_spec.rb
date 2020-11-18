@@ -349,29 +349,7 @@ RSpec.describe Formation::Form do
 
         form = SomeForm.new(model: model)
 
-        expect(form.attributes).to eq ({ first_name: nil, last_name: nil })
-      end
-    end
-
-    context 'default values given' do
-      it 'sets default values' do
-        SomeForm =
-          Class.new(Formation::Form) do
-            attribute :first_name, default: "Jacob"
-            attribute :last_name, default: Proc.new { 'Smith' }
-            attribute :last_4, default: Proc.new { |f| f.phone_number[-4..-1] }
-
-            def phone_number
-              '123456789'
-            end
-          end
-
-        form = SomeForm.new
-
-        expect(form.attributes).to eq ({ first_name: 'Jacob', last_name: 'Smith', last_4: '6789' })
-        expect(form.first_name).to eq 'Jacob'
-        expect(form.last_name).to eq 'Smith'
-        expect(form.last_4).to eq '6789'
+        expect(form.attributes).to eq ({ "first_name" => nil, "last_name" => nil })
       end
     end
 
@@ -385,7 +363,7 @@ RSpec.describe Formation::Form do
 
         form = SomeForm.new(model: model, params: { last_name: 'smith' })
 
-        expect(form.attributes).to eq ({ first_name: nil, last_name: 'smith' })
+        expect(form.attributes).to eq ({ "first_name" => nil, "last_name" => 'smith' })
       end
     end
   end

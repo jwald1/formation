@@ -1,5 +1,4 @@
 require 'active_model'
-require 'active_model_attributes'
 require 'action_controller/metal/strong_parameters'
 
 module Formation
@@ -10,7 +9,7 @@ module Formation
     Invalid = Class.new(Error)
 
     include ActiveModel::Model
-    include ActiveModelAttributes
+    include ActiveModel::Attributes
 
     def self.param_key(key = nil)
       return @param_key if key.nil?
@@ -22,8 +21,7 @@ module Formation
       @auto_html5_validation ||= bool
     end
 
-    def initialize(model: nil, params: nil)
-
+    def initialize(model: nil, params: {})
       if params.present? && params.is_a?(ActionController::Parameters)
         params = params.to_unsafe_h.to_h
       else
@@ -32,17 +30,19 @@ module Formation
 
       @model = model
 
+      
       params.symbolize_keys!
-      params.slice!(*registered_attribute_keys)
-      params.select! { |_, value| value.present? }
-      super(model_attributes.merge(params))
-    end
+      params.slice!(*registered_attribute_keys.map(&:to_sym))
+      filter_params = params.select { |_, value| value.present? }
 
-    def attributes
-      @_attributes ||=
-        registered_attribute_keys.map do |attribute|
-          [attribute, public_send(attribute)]
-        end.to_h
+      super(**filter_params)
+      # does attributes that doesn't have a value and there key is not present in params
+      attributes.select do |key, value|
+        next if value.present? || params.key?(key.to_s) || params.key?(key.to_sym)
+
+        value = model.respond_to?(:attributes) ? model.attributes[key.to_s] || model.attributes[key.to_sym] : model.try(key)
+        self.send("#{key}=", value)
+      end
     end
 
     def save
@@ -80,49 +80,50 @@ module Formation
     private
 
     def registered_attribute_keys
-      self.class.attributes_registry.keys
+      @keys ||= self.class._default_attributes.to_h.keys
     end
 
     def persist
       raise NotImplementedError, '#persist has to be implemented'
     end
 
-    def default_attributes
-      @default_attributes ||= self.class.attributes_registry.map do |k, v|
-        default_value = v.last[:default]
-        default_value = default_value.respond_to?(:call) ? default_value.call(self) : default_value
-        [k, default_value]
-      end.to_h
-    end
+    # def default_attributes
+    #   binding.pry
+    #   @default_attributes ||= self.class._default_attributes.each_value.to_a.map do |attribute|
+    #     default_value = v.last[:default]
+    #     default_value = default_value.respond_to?(:call) ? default_value.call(self) : default_value
+    #     [k, default_value]
+    #   end.to_h
+    # end
 
-    def model_attributes
-      return default_attributes unless model
+    # def model_attributes
+    #   return default_attributes unless model
 
-      model_attrs =
-        if model.respond_to?(:attributes)
-          model.attributes.symbolize_keys
-        else
-          {}
-        end
+    #   model_attrs =
+    #     if model.respond_to?(:attributes)
+    #       model.attributes.symbolize_keys
+    #     else
+    #       {}
+    #     end
 
-      registered_attribute_keys.map do |attribute|
-        value = if model_attrs[attribute].present?
-          model_attrs[attribute]
-        elsif model_attribute_value(attribute).present?
-          model_attribute_value(attribute)
-        else
-          default_attributes[attribute]
-        end
+    #   registered_attribute_keys.map do |attribute|
+    #     value = if model_attrs[attribute].present?
+    #       model_attrs[attribute]
+    #     elsif model_attribute_value(attribute).present?
+    #       model_attribute_value(attribute)
+    #     else
+    #       default_attributes[attribute]
+    #     end
 
-        [attribute, value]
-      end.to_h
-    end
+    #     [attribute, value]
+    #   end.to_h
+    # end
 
-    def model_attribute_value(attribute)
-      return unless model.respond_to?(attribute)
+    # def model_attribute_value(attribute)
+    #   return unless model.respond_to?(attribute)
 
-      model.public_send(attribute)
-    end
+    #   model.public_send(attribute)
+    # end
 
     def model_name_attributes
       if self.class.param_key.present?

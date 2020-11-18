@@ -1,6 +1,6 @@
 # Formation
 
-Form objects for rails build on top Active model and [active_model_attributes](https://github.com/Azdaroth/active_model_attributes)
+Form objects for rails build on top Active model
 Heavily inspired by the `rails-patterns` gem.
 
 ## Installation
@@ -34,7 +34,7 @@ class ProfileForm < Formation::Form
   # you can set default values like so:
   attribute :phone_number, default: '000-000-0000'
   # using a proc
-  attribute :last_4, default: Proc.new { |f| f.phone_number[-4..-1] }
+  attribute :last_4, default: '4321'
 
   private
 
