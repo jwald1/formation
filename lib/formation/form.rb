@@ -36,12 +36,13 @@ module Formation
       filter_params = params.select { |_, value| value.present? }
 
       super(**filter_params)
-      # does attributes that doesn't have a value and there key is not present in params
+      # We assign the models value for attributes that doesn't have a value and there key is not present in params
+      # sync attributes with model only if the user didn't assign a value in the current submission (nil is also a value)
       attributes.select do |key, value|
-        next if value.present? || params.key?(key.to_s) || params.key?(key.to_sym)
-
-        value = model.respond_to?(:attributes) ? model.attributes[key.to_s] || model.attributes[key.to_sym] : model.try(key)
-        self.send("#{key}=", value)
+        user_submitted_value = value.present? || params.key?(key.to_s) || params.key?(key.to_sym)
+        next if user_submitted_value
+        
+        self.send("#{key}=", value_from_model(key))
       end
     end
 
@@ -87,43 +88,11 @@ module Formation
       raise NotImplementedError, '#persist has to be implemented'
     end
 
-    # def default_attributes
-    #   binding.pry
-    #   @default_attributes ||= self.class._default_attributes.each_value.to_a.map do |attribute|
-    #     default_value = v.last[:default]
-    #     default_value = default_value.respond_to?(:call) ? default_value.call(self) : default_value
-    #     [k, default_value]
-    #   end.to_h
-    # end
-
-    # def model_attributes
-    #   return default_attributes unless model
-
-    #   model_attrs =
-    #     if model.respond_to?(:attributes)
-    #       model.attributes.symbolize_keys
-    #     else
-    #       {}
-    #     end
-
-    #   registered_attribute_keys.map do |attribute|
-    #     value = if model_attrs[attribute].present?
-    #       model_attrs[attribute]
-    #     elsif model_attribute_value(attribute).present?
-    #       model_attribute_value(attribute)
-    #     else
-    #       default_attributes[attribute]
-    #     end
-
-    #     [attribute, value]
-    #   end.to_h
-    # end
-
-    # def model_attribute_value(attribute)
-    #   return unless model.respond_to?(attribute)
-
-    #   model.public_send(attribute)
-    # end
+    def value_from_model(attribute)
+      model_attributes = model.try(:attributes) || {}
+      
+      model_attributes[attribute.to_s] || model_attributes[attribute.to_sym] || model.try(attribute)
+    end
 
     def model_name_attributes
       if self.class.param_key.present?
