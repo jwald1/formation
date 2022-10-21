@@ -3,7 +3,7 @@ PATH
   specs:
     formation (1.0.0)
       actionpack (>= 6.0.3.1, < 8)
-      activemodel (~> 6.0, >= 6.0.3.4)
+      activemodel (>= 6.0, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -43,7 +43,7 @@ GEM
     method_source (1.0.0)
     mini_portile2 (2.8.0)
     minitest (5.15.0)
-    nokogiri (1.13.4)
+    nokogiri (1.13.9)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     pry (0.13.1)
