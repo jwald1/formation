@@ -3,7 +3,7 @@ PATH
   specs:
     formation (1.0.0)
       actionpack (>= 6.0.3.1, < 8)
-      activemodel (~> 6.0, >= 6.0.3.4)
+      activemodel (>= 6.0, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -50,7 +50,7 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
     racc (1.6.0)
-    rack (2.2.3)
+    rack (2.2.6.2)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails-dom-testing (2.0.3)
